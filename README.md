@@ -1,4 +1,4 @@
-# spritekit-hello-world
+# spritekit-simple-game
 
 RubyMotion port of Ray Wenderlich's [Sprite Kit Tutorial for Beginners](http://www.raywenderlich.com/42699/spritekit-tutorial-for-beginners)
 
