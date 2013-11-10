@@ -1,22 +1,23 @@
 class ViewController < UIViewController
-  def viewDidLoad
+  def viewWillLayoutSubviews
     super
 
-    # Configure the view.
-    sk_view = SKView.alloc.init
-    sk_view.bounds = self.view.bounds
-    sk_view.showsFPS = true
-    sk_view.showsNodeCount = true
+    if self.view.class != SKView
+      # Configure the view.
+      sk_view = SKView.alloc.init
+      sk_view.bounds = self.view.bounds
+      sk_view.showsFPS = true
+      sk_view.showsNodeCount = true
 
-    # Create and configure the scene.
-    scene = MyScene.sceneWithSize(CGSizeMake(768, 1024))
-    scene = MyScene.sceneWithSize(sk_view.bounds.size)
-    scene.scaleMode = SKSceneScaleModeAspectFill
+      # Create and configure the scene.
+      scene = MyScene.sceneWithSize(sk_view.bounds.size)
+      scene.scaleMode = SKSceneScaleModeAspectFill
 
-    # Present the scene.
-    sk_view.presentScene(scene)
+      # Present the scene.
+      sk_view.presentScene(scene)
 
-    self.view = sk_view
+      self.view = sk_view
+    end
   end
 
   def shouldAutorotate

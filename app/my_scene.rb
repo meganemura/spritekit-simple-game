@@ -1,14 +1,16 @@
 class MyScene < SKScene
+
+  attr_accessor :player
+
   def initWithSize(size)
     super
 
-    self.backgroundColor = SKColor.colorWithRed(0.15, green: 0.15, blue: 0.3, alpha: 1.0)
-    my_label = SKLabelNode.labelNodeWithFontNamed("Chalkduster")
-    my_label.text = "Hello, World!"
-    my_label.fontSize = 30
-    my_label.position = CGPointMake(CGRectGetMidX(self.frame),
-                                    CGRectGetMidY(self.frame))
-    self.addChild(my_label)
+    self.backgroundColor = SKColor.colorWithRed(1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+
+    self.player = SKSpriteNode.spriteNodeWithImageNamed("player")
+    self.player.position = CGPointMake(self.player.size.width / 2, self.frame.size.height / 2)
+    self.addChild(self.player)
+
     self
   end
 
