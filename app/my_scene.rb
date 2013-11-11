@@ -68,4 +68,39 @@ class MyScene < SKScene
     action_move_done = SKAction.removeFromParent
     monster.runAction(SKAction.sequence([action_move, action_move_done]))
   end
+
+  def touchesEnded(touches, withEvent: event)
+    # 1 - Choose one of the touches to work with
+    touch = touches.anyObject
+    location = touch.locationInNode(self)
+
+    # 2 - Set up initial location of projectile
+    projectile = SKSpriteNode.spriteNodeWithImageNamed("projectile")
+    projectile.position = self.player.position
+
+    # 3 - Determine offset of location to projectile
+    offset = location - projectile.position
+
+    # 4 - Bail out if you are shooting down or backwards
+    return if offset.x <= 0
+
+    # 5 - OK to add now - we've double checked position
+    self.addChild(projectile)
+
+    # 6 - Get the direction of where to shoot
+    direction = offset.normalize
+
+    # 7 - Make it shoot far enough to be guaranteed off screen
+    shoot_amount = direction * 1000
+
+    # 8 - Add the shoot amount to the current position
+    real_dest = shoot_amount + projectile.position
+
+    # 9 - Create the actions
+    velocity = 480.0
+    real_move_duration = self.size.width / velocity
+    action_move = SKAction.moveTo(real_dest, duration: real_move_duration)
+    action_move_done = SKAction.removeFromParent
+    projectile.runAction(SKAction.sequence([action_move, action_move_done]))
+  end
 end
