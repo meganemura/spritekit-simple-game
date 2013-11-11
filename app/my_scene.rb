@@ -1,9 +1,9 @@
 class MyScene < SKScene
 
   attr_accessor :player
-  # attr_accessor :physics_world
   attr_accessor :last_spawn_time_interval
   attr_accessor :last_update_time_interval
+  attr_accessor :monsters_destroyed
 
   PROJECTILE_CATEGORY = 0x1 << 0
   MONSTER_CATEGORY    = 0x1 << 1
@@ -20,6 +20,8 @@ class MyScene < SKScene
 
     self.physicsWorld.gravity = CGVectorMake(0, 0)
     self.physicsWorld.contactDelegate = self
+
+    self.monsters_destroyed = 0
 
     self.last_spawn_time_interval = 0
     self.last_update_time_interval = 0
@@ -82,11 +84,18 @@ class MyScene < SKScene
 
     # Create the actions
     action_move = SKAction.moveTo(CGPointMake(-monster.size.width / 2, actual_y), duration: actual_duration)
+    lose_action = SKAction.runBlock(lambda {
+      reveal = SKTransition.flipHorizontalWithDuration(0.5)
+      game_over_scene = GameOverScene.alloc.initWithSize(self.size, won: false)
+      self.view.presentScene(game_over_scene, transition: reveal)
+    })
     action_move_done = SKAction.removeFromParent
-    monster.runAction(SKAction.sequence([action_move, action_move_done]))
+    monster.runAction(SKAction.sequence([action_move, lose_action, action_move_done]))
   end
 
   def touchesEnded(touches, withEvent: event)
+    self.runAction(SKAction.playSoundFileNamed("Sounds/pew-pew-lei.caf", waitForCompletion: false))
+
     # 1 - Choose one of the touches to work with
     touch = touches.anyObject
     location = touch.locationInNode(self)
@@ -147,6 +156,12 @@ class MyScene < SKScene
   def projectile(projectile, didCollideWithMonster: monster)
     projectile.removeFromParent
     monster.removeFromParent
+    self.monsters_destroyed += 1
+    if self.monsters_destroyed >= 3
+      reveal = SKTransition.flipHorizontalWithDuration(0.5)
+      game_over_scene = GameOverScene.alloc.initWithSize(self.size, won: true)
+      self.view.presentScene(game_over_scene, transition: reveal)
+    end
   end
 
 end
