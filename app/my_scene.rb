@@ -1,8 +1,13 @@
 class MyScene < SKScene
 
   attr_accessor :player
+  # attr_accessor :physics_world
   attr_accessor :last_spawn_time_interval
   attr_accessor :last_update_time_interval
+
+  PROJECTILE_CATEGORY = 0x1 << 0
+  MONSTER_CATEGORY    = 0x1 << 1
+
 
   def initWithSize(size)
     super
@@ -12,6 +17,10 @@ class MyScene < SKScene
     self.player = SKSpriteNode.spriteNodeWithImageNamed("player")
     self.player.position = CGPointMake(self.player.size.width / 2, self.frame.size.height / 2)
     self.addChild(self.player)
+
+    self.physicsWorld.gravity = CGVectorMake(0, 0)
+    self.physicsWorld.contactDelegate = self
+
     self.last_spawn_time_interval = 0
     self.last_update_time_interval = 0
 
@@ -46,6 +55,14 @@ class MyScene < SKScene
     # Create sprite
     monster = SKSpriteNode.spriteNodeWithImageNamed("monster")
 
+    monster.physicsBody = SKPhysicsBody.bodyWithRectangleOfSize(monster.size)
+    monster.physicsBody.tap do |body|
+      body.dynamic = true
+      body.categoryBitMask = MONSTER_CATEGORY
+      body.contactTestBitMask = PROJECTILE_CATEGORY
+      body.collisionBitMask = 0
+    end
+
     # Determine where to spawn the monster along the Y axis
     min_y = monster.size.height / 2
     max_y = self.frame.size.height - monster.size.height / 2
@@ -78,6 +95,15 @@ class MyScene < SKScene
     projectile = SKSpriteNode.spriteNodeWithImageNamed("projectile")
     projectile.position = self.player.position
 
+    projectile.physicsBody = SKPhysicsBody.bodyWithCircleOfRadius(projectile.size.width / 2)
+    projectile.physicsBody.tap do |body|
+      body.dynamic = true
+      body.categoryBitMask = PROJECTILE_CATEGORY
+      body.contactTestBitMask = MONSTER_CATEGORY
+      body.collisionBitMask = 0
+      body.usesPreciseCollisionDetection = true
+    end
+
     # 3 - Determine offset of location to projectile
     offset = location - projectile.position
 
@@ -103,4 +129,24 @@ class MyScene < SKScene
     action_move_done = SKAction.removeFromParent
     projectile.runAction(SKAction.sequence([action_move, action_move_done]))
   end
+
+  # Call when collide cause of self.contactDelegate == self
+  def didBeginContact(contact)
+    if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask
+      first_body, second_body = contact.bodyA, contact.bodyB
+    else
+      first_body, second_body = contact.bodyB, contact.bodyA
+    end
+
+    if (first_body.categoryBitMask & PROJECTILE_CATEGORY != 0) &&
+       (second_body.categoryBitMask & MONSTER_CATEGORY != 0)
+      self.projectile(first_body.node, didCollideWithMonster: second_body.node)
+    end
+  end
+
+  def projectile(projectile, didCollideWithMonster: monster)
+    projectile.removeFromParent
+    monster.removeFromParent
+  end
+
 end
