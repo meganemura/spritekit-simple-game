@@ -14,17 +14,6 @@ class MyScene < SKScene
     self
   end
 
-  def touchesBegan(touches, withEvent: event)
-    touches.each do |touch|
-      location = touch.locationInNode(self)
-      sprite = SKSpriteNode.spriteNodeWithImageNamed("Spaceship")
-      sprite.position = location
-      action = SKAction.rotateByAngle(Math::PI, duration: 1)
-      sprite.runAction(SKAction.repeatActionForever(action))
-      self.addChild(sprite)
-    end
-  end
-
   def update(current_time)
     # Called before each frame is rendered
   end
