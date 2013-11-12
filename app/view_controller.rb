@@ -2,20 +2,24 @@ class ViewController < UIViewController
 
   attr_accessor :backgroundMusicPlayer
 
+  def loadView
+    bounds = UIScreen.mainScreen.bounds
+    self.view = SKView.alloc.initWithFrame(bounds)
+  end
+
   def viewWillLayoutSubviews
     super
 
-    if self.view.class != SKView
-      error = Pointer.new(:object)
-      background_music_url = NSBundle.mainBundle.URLForResource("Sounds/background-music-aac", withExtension: "caf")
-      self.backgroundMusicPlayer = AVAudioPlayer.alloc.initWithContentsOfURL(background_music_url, error: error)
-      self.backgroundMusicPlayer.numberOfLoops = -1
-      self.backgroundMusicPlayer.prepareToPlay
-      self.backgroundMusicPlayer.play
+    error = Pointer.new(:object)
+    background_music_url = NSBundle.mainBundle.URLForResource("Sounds/background-music-aac", withExtension: "caf")
+    self.backgroundMusicPlayer = AVAudioPlayer.alloc.initWithContentsOfURL(background_music_url, error: error)
+    self.backgroundMusicPlayer.numberOfLoops = -1
+    self.backgroundMusicPlayer.prepareToPlay
+    self.backgroundMusicPlayer.play
 
-      # Configure the view.
-      sk_view = SKView.alloc.init
-      sk_view.bounds = self.view.bounds
+    # Configure the view.
+    sk_view = self.view
+    unless sk_view.scene
       sk_view.showsFPS = true
       sk_view.showsNodeCount = true
 
